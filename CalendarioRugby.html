@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Calendario unico U16 2026/2027 - Firenze</title>
+  <style>
+    :root {
+      --ink: #14221b;
+      --muted: #5f6f66;
+      --paper: #fbfcf9;
+      --line: #dce4de;
+      --green: #0c6b46;
+      --green-soft: #e4f4ec;
+      --blue: #1f5fae;
+      --blue-soft: #e8f1fc;
+      --orange: #b65316;
+      --orange-soft: #fff0e4;
+      --shadow: 0 18px 50px rgba(19, 48, 33, .12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(12,107,70,.13), transparent 30rem),
+        linear-gradient(180deg, #f3f7f2 0, #fbfcf9 32rem);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .hero { padding: 52px 0 30px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin: 0 0 14px; color: var(--green); font-size: .78rem;
+      font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 26px; height: 3px; border-radius: 99px; background: var(--green); }
+    h1 { max-width: 850px; margin: 0; font-size: clamp(2.2rem, 5.5vw, 4.6rem); line-height: .98; letter-spacing: -.055em; }
+    .subtitle { max-width: 760px; margin: 20px 0 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.18rem); line-height: 1.6; }
+
+    .summary {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 28px 0 0;
+    }
+    .metric {
+      padding: 17px 18px; border: 1px solid rgba(255,255,255,.7); border-radius: 18px;
+      background: rgba(255,255,255,.78); box-shadow: 0 8px 24px rgba(19,48,33,.06); backdrop-filter: blur(10px);
+    }
+    .metric strong { display: block; font-size: 1.6rem; letter-spacing: -.04em; }
+    .metric span { display: block; margin-top: 2px; color: var(--muted); font-size: .83rem; }
+
+    .calendar-card { overflow: hidden; margin: 0 0 30px; border: 1px solid var(--line); border-radius: 26px; background: white; box-shadow: var(--shadow); }
+    .toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;
+      padding: 18px 20px; border-bottom: 1px solid var(--line); background: #fff;
+    }
+    .filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 18px; }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-label { color: var(--muted); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter {
+      appearance: none; border: 1px solid var(--line); border-radius: 999px; padding: 9px 13px;
+      color: var(--ink); background: #fff; font: inherit; font-size: .82rem; font-weight: 750; cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .filter:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(19,48,33,.09); }
+    .filter[aria-pressed="true"] { color: white; border-color: var(--green); background: var(--green); }
+    .filter[data-team="FIRENZE 1931"][aria-pressed="true"] { border-color: var(--blue); background: var(--blue); }
+    .filter[data-team="FIRENZE 1931_2"][aria-pressed="true"] { border-color: var(--orange); background: var(--orange); }
+    .filter[data-location][aria-pressed="true"] { border-color: #60449b; background: #60449b; }
+    .actions { display: flex; gap: 8px; }
+    .action {
+      border: 1px solid var(--line); border-radius: 11px; padding: 9px 12px; color: var(--ink); background: #f8faf8;
+      font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
+    }
+
+    .result-line { padding: 10px 21px; color: var(--muted); background: #fafcf9; font-size: .82rem; border-bottom: 1px solid var(--line); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 790px; border-collapse: collapse; }
+    thead th {
+      position: sticky; top: 0; z-index: 2; padding: 14px 18px; text-align: left;
+      color: #fff; background: #173d2b; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+    }
+    thead th:nth-child(1) { width: 16%; }
+    thead th:nth-child(2) { width: 35%; }
+    thead th:nth-child(3) { width: 38%; }
+    thead th:nth-child(4) { width: 11%; text-align: center; }
+    tbody tr.match-row { border-bottom: 1px solid var(--line); transition: background .15s ease; }
+    tbody tr.match-row:hover { background: #f7faf7; }
+    tbody td { padding: 15px 18px; vertical-align: middle; font-size: .91rem; }
+    tbody td:last-child { text-align: center; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .month-row td {
+      padding: 10px 18px; color: var(--green); background: #edf5f0; font-size: .74rem;
+      font-weight: 850; letter-spacing: .1em; text-transform: uppercase;
+    }
+    .date-main { display: block; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .date-day { display: block; margin-top: 2px; color: var(--muted); font-size: .75rem; text-transform: capitalize; }
+    .fixture { font-weight: 760; line-height: 1.35; }
+    .team-tag {
+      display: inline-block; margin-bottom: 6px; padding: 3px 7px; border-radius: 7px;
+      color: var(--green); background: var(--green-soft); font-size: .65rem; font-weight: 850; letter-spacing: .06em;
+    }
+    .team-tag.blue { color: var(--blue); background: var(--blue-soft); }
+    .team-tag.orange { color: var(--orange); background: var(--orange-soft); }
+    .venue { line-height: 1.4; }
+    .status { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 3px 7px; border-radius: 999px; color: #60449b; background: #f0ebfa; font-size: .72rem; font-weight: 800; }
+    .status.home { color: var(--green); background: var(--green-soft); }
+    .status.note { display: block; width: fit-content; color: var(--muted); background: #f1f4f2; }
+    .map-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; color: var(--blue); font-size: .75rem; font-weight: 800; text-decoration: none; }
+    .map-link:hover { text-decoration: underline; }
+    .map-link:focus-visible, .filter:focus-visible, .action:focus-visible { outline: 3px solid rgba(31,95,174,.28); outline-offset: 2px; }
+    .missing { color: #8a4d13; font-style: italic; }
+    .empty { padding: 46px 20px; text-align: center; color: var(--muted); }
+
+    .notes {
+      display: grid; grid-template-columns: 1.3fr .7fr; gap: 18px; margin: 0 0 52px;
+    }
+    .note-card { padding: 20px 22px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.78); }
+    .note-card h2 { margin: 0 0 10px; font-size: 1rem; }
+    .note-card p, .note-card li { color: var(--muted); font-size: .86rem; line-height: 1.6; }
+    .note-card p { margin: 0; }
+    .note-card ul { margin: 0; padding-left: 18px; }
+    .legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend span { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .83rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+    .dot.blue { background: var(--blue); }
+    .dot.orange { background: var(--orange); }
+    footer { padding: 0 0 28px; color: var(--muted); font-size: .75rem; text-align: center; }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      .hero { padding-top: 34px; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { align-items: flex-start; }
+      .filters, .filter-group { width: 100%; }
+      .filter-options { width: 100%; }
+      .filter { flex: 1 1 auto; }
+      .actions { width: 100%; }
+      .action { flex: 1; }
+      .notes { grid-template-columns: 1fr; }
+      .calendar-card { border-radius: 18px; }
+      tbody td { padding: 13px 14px; }
+    }
+
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      body { background: white; }
+      .shell { width: 100%; }
+      .hero { padding: 0 0 14px; }
+      h1 { font-size: 26pt; }
+      .subtitle { margin-top: 8px; font-size: 10pt; }
+      .summary, .toolbar, .result-line, .notes, footer { display: none !important; }
+      .calendar-card { border-radius: 0; box-shadow: none; }
+      table { min-width: 0; }
+      thead { display: table-header-group; }
+      thead th { position: static; color: #000; background: #e8eee9; }
+      tbody tr { break-inside: avoid; }
+      tbody td { padding: 6px 8px; font-size: 8.5pt; }
+      .month-row td { padding: 5px 8px; }
+      .team-tag { margin-bottom: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <p class="eyebrow">Under 16 · stagione 2026/2027</p>
+      <h1>Un solo calendario.<br>Tre squadre di Firenze.</h1>
+      <p class="subtitle">Tutte le partite di FLORENTIA RUGBY, FIRENZE 1931 e FIRENZE 1931_2, ordinate cronologicamente e riunite in una sola pagina.</p>
+      <section class="summary" aria-label="Riepilogo calendario">
+        <div class="metric"><strong id="totalMatches">32</strong><span>partite totali</span></div>
+        <div class="metric"><strong>3</strong><span>squadre</span></div>
+        <div class="metric"><strong>22/11</strong><span>prima partita</span></div>
+        <div class="metric"><strong>11/04</strong><span>ultima partita</span></div>
+      </section>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="calendar-card" aria-labelledby="calendar-title">
+      <div class="toolbar">
+        <div class="filters" aria-label="Filtri calendario">
+          <div class="filter-group" role="group" aria-label="Filtra per squadra">
+            <span class="filter-label">Squadra</span>
+            <div class="filter-options">
+              <button class="filter team-filter" data-team="FLORENTIA RUGBY" aria-pressed="true">FLORENTIA RUGBY</button>
+              <button class="filter team-filter" data-team="FIRENZE 1931" aria-pressed="true">FIRENZE 1931</button>
+              <button class="filter team-filter" data-team="FIRENZE 1931_2" aria-pressed="true">FIRENZE 1931_2</button>
+            </div>
+          </div>
+          <div class="filter-group" role="group" aria-label="Filtra per casa o trasferta">
+            <span class="filter-label">Dove si gioca</span>
+            <div class="filter-options">
+              <button class="filter location-filter" data-location="Casa" aria-pressed="true">⌂ Casa</button>
+              <button class="filter location-filter" data-location="Trasferta" aria-pressed="true">↗ Trasferta</button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="action" id="showAll" type="button">Mostra tutte</button>
+          <button class="action" id="printPage" type="button">Stampa / PDF</button>
+        </div>
+      </div>
+      <div class="result-line" id="calendar-title" aria-live="polite">34 partite visualizzate</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Partita</th><th>Luogo</th><th>Orario</th></tr>
+          </thead>
+          <tbody id="calendarBody">
+            <tr class="month-row"><td colspan="4">novembre 2026</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">22/11/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">GRANDUCATO_2 - FIRENZE 1931_2</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Priami, Via Marx, Collesalvetti (LI)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">22/11/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FOSSO SEJORE - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Via Scarpellini, Pesaro (PU)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">22/11/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">FLORENTIA RUGBY - U.S. MONTELUPO EMPOLI</div><span class="status home">Casa</span></td><td class="venue ">Campo Marco Polo, Via San Bartolo a Cintoia, Firenze</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">29/11/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - SESTO</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="month-row"><td colspan="4">dicembre 2026</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">06/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">FIRENZE 1931_2 - VASARI AREZZO</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">06/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">PARMA FC 1931 - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Banchini, Via Lago Verde 6/A, Parma (PR)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">06/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">HIGHLANDERS FORMIGINE - FLORENTIA RUGBY</div><span class="status ">Trasferta</span></td><td class="venue ">Campo Comunale, Via Mons. Cavazzuti, Formigine (MO)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">13/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - LIVORNO</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">13/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">VALDARNO - FIRENZE 1931_2</div><span class="status ">Trasferta</span></td><td class="venue ">Stadio Ponte Rosso, Ponte Rosso snc, Figline Valdarno (FI)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">13/12/2026</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">Perugia - FLORENTIA RUGBY</div><span class="status ">Trasferta</span></td><td class="venue missing"></td><td>12:30</td></tr>
+            <tr class="month-row"><td colspan="4">gennaio 2027</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">10/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">FIRENZE 1931_2 - I TITANI</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">10/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">BOLOGNA - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Bonori, Via Romita, Bologna (BO)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">16/01/2027</span><span class="date-day">sabato</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">FLORENTIA RUGBY - GISPI RUGBY PRATO SOC. COOP</div><span class="status home">Casa</span></td><td class="venue ">Campo Marco Polo, Via San Bartolo a Cintoia, Firenze</td><td>17:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">17/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">GRANDUCATO - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Priami, Via Marx, Collesalvetti (LI)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">17/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">FIRENZE 1931_2 - GRANDUCATO_2</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">31/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - VALORUGBY</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">31/01/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">TIRRENO RUGBY CLUB - FLORENTIA RUGBY</div><span class="status ">Trasferta</span></td><td class="venue ">Campo Aldo Castellani, Via Aldo Moro 4, Cecina (LI)</td><td>12:30</td></tr>
+            <tr class="month-row"><td colspan="4">febbraio 2027</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">07/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">VASARI AREZZO - FIRENZE 1931_2</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Gori, Via dell’Acropoli, Arezzo (AR)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">07/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - FOSSO SEJORE</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">13/02/2027</span><span class="date-day">sabato</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">U.S. MONTELUPO EMPOLI - FLORENTIA RUGBY</div><span class="status ">Trasferta</span></td><td class="venue ">Campo sportivo Fibbiana, Via del Campo, Montelupo Fiorentino (FI)</td><td>17:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">14/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">SESTO - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Querceto, Via della Quercia, Sesto Fiorentino (FI)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">14/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">FIRENZE 1931_2 - VALDARNO</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931_2"><td><span class="date-main">28/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag orange">FIRENZE 1931_2</span><div class="fixture">I TITANI - FIRENZE 1931_2</div><span class="status ">Trasferta</span></td><td class="venue ">Stadio Ferracci, Via V. Bellini, Torre del Lago (LU)</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">28/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - PARMA FC 1931</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">28/02/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">FLORENTIA RUGBY - HIGHLANDERS FORMIGINE</div><span class="status home">Casa</span></td><td class="venue ">Campo Marco Polo, Via San Bartolo a Cintoia, Firenze</td><td>12:30</td></tr>
+            <tr class="month-row"><td colspan="4">marzo 2027</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">14/03/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">LIVORNO - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Maneo, Via delle Margherite, Livorno (LI)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">21/03/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - BOLOGNA</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">21/03/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">FLORENTIA RUGBY - Perugia</div><span class="status home">Casa</span></td><td class="venue ">Campo Marco Polo, Via San Bartolo a Cintoia, Firenze</td><td>12:30</td></tr>
+            <tr class="month-row"><td colspan="4">aprile 2027</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">04/04/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">FIRENZE 1931 - GRANDUCATO</div><span class="status home">Casa</span></td><td class="venue ">Stadio M. Lodigiani, Viale Paoli, Firenze</td><td>11:00</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">04/04/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">ASD FAENZA RUGBY - FLORENTIA RUGBY</div><span class="status ">Trasferta</span></td><td class="venue ">Campo Graziola, Piazza Atleti Azzurri d’Italia, Faenza (RA)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FIRENZE 1931"><td><span class="date-main">11/04/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag blue">FIRENZE 1931</span><div class="fixture">VALORUGBY - FIRENZE 1931</div><span class="status ">Trasferta</span></td><td class="venue ">Centro Sportivo Canalina, Via Antonio Assalini 7, Reggio Emilia (RE)</td><td>12:30</td></tr>
+            <tr class="match-row" data-team="FLORENTIA RUGBY"><td><span class="date-main">11/04/2027</span><span class="date-day">domenica</span></td><td><span class="team-tag ">FLORENTIA RUGBY</span><div class="fixture">FLORENTIA RUGBY - MODENA RUGBY 1965</div><span class="status home">Casa</span></td><td class="venue ">Campo Marco Polo, Via San Bartolo a Cintoia, Firenze</td><td>12:30</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="Note e legenda">
+      <div class="note-card">
+        <h2>Note sui dati</h2>
+        <ul>
+          <li>Per la gara Perugia - FLORENTIA RUGBY del 13/12/2026 il campo non è indicato.</li>
+          <li>Orari e impianti riflettono i calendari forniti e possono essere soggetti a variazioni federali.</li>
+        </ul>
+      </div>
+      <div class="note-card">
+        <h2>Legenda</h2>
+        <div class="legend">
+          <span><i class="dot"></i>FLORENTIA RUGBY</span>
+          <span><i class="dot blue"></i>FIRENZE 1931</span>
+          <span><i class="dot orange"></i>FIRENZE 1931_2</span>
+          <span>⌂ Casa · ↗ Trasferta</span>
+          <span>📍 Il link apre il campo in Google Maps</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Fonti: U16_REGIONALE_2627.pdf · U16_INT1_v2627.pdf · Calendario Under 16 - girone interregionale 2.pdf</footer>
+
+  <script>
+    const matches = [
+      {date:'2026-11-22', time:'11:00', team:'FIRENZE 1931_2', home:'GRANDUCATO_2', away:'FIRENZE 1931_2', venue:'Centro Sportivo Priami, Via Marx, Collesalvetti (LI)'},
+      {date:'2026-11-22', time:'12:30', team:'FLORENTIA RUGBY', home:'FLORENTIA RUGBY', away:'U.S. MONTELUPO EMPOLI', venue:'Campo Marco Polo, Via San Bartolo a Cintoia, Firenze'},
+      {date:'2026-11-22', time:'12:30', team:'FIRENZE 1931', home:'FOSSO SEJORE', away:'FIRENZE 1931', venue:'Centro Sportivo Via Scarpellini, Pesaro (PU)'},
+      {date:'2026-11-29', time:'11:00', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'SESTO', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2026-12-06', time:'11:00', team:'FIRENZE 1931_2', home:'FIRENZE 1931_2', away:'VASARI AREZZO', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2026-12-06', time:'12:30', team:'FLORENTIA RUGBY', home:'HIGHLANDERS FORMIGINE', away:'FLORENTIA RUGBY', venue:'Campo Comunale, Via Mons. Cavazzuti, Formigine (MO)'},
+      {date:'2026-12-06', time:'12:30', team:'FIRENZE 1931', home:'PARMA FC 1931', away:'FIRENZE 1931', venue:'Centro Sportivo Banchini, Via Lago Verde 6/A, Parma (PR)'},
+      {date:'2026-12-13', time:'11:00', team:'FIRENZE 1931_2', home:'VALDARNO', away:'FIRENZE 1931_2', venue:'Stadio Ponte Rosso, Ponte Rosso snc, Figline Valdarno (FI)'},
+      {date:'2026-12-13', time:'11:00', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'LIVORNO', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2026-12-13', time:'12:30', team:'FLORENTIA RUGBY', home:'Perugia', away:'FLORENTIA RUGBY', venue:'', missing:true},
+      {date:'2027-01-10', time:'11:00', team:'FIRENZE 1931_2', home:'FIRENZE 1931_2', away:'I TITANI', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-01-10', time:'12:30', team:'FIRENZE 1931', home:'BOLOGNA', away:'FIRENZE 1931', venue:'Centro Sportivo Bonori, Via Romita, Bologna (BO)'},
+      {date:'2027-01-16', time:'17:00', team:'FLORENTIA RUGBY', home:'FLORENTIA RUGBY', away:'GISPI RUGBY PRATO SOC. COOP', venue:'Campo Marco Polo, Via San Bartolo a Cintoia, Firenze'},
+      {date:'2027-01-17', time:'11:00', team:'FIRENZE 1931_2', home:'FIRENZE 1931_2', away:'GRANDUCATO_2', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-01-17', time:'11:00', team:'FIRENZE 1931', home:'GRANDUCATO', away:'FIRENZE 1931', venue:'Centro Sportivo Priami, Via Marx, Collesalvetti (LI)'},
+      {date:'2027-01-31', time:'12:30', team:'FLORENTIA RUGBY', home:'TIRRENO RUGBY CLUB', away:'FLORENTIA RUGBY', venue:'Campo Aldo Castellani, Via Aldo Moro 4, Cecina (LI)'},
+      {date:'2027-01-31', time:'12:30', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'VALORUGBY', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-02-07', time:'11:00', team:'FIRENZE 1931_2', home:'VASARI AREZZO', away:'FIRENZE 1931_2', venue:'Centro Sportivo Gori, Via dell’Acropoli, Arezzo (AR)'},
+      {date:'2027-02-07', time:'12:30', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'FOSSO SEJORE', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-02-13', time:'17:00', team:'FLORENTIA RUGBY', home:'U.S. MONTELUPO EMPOLI', away:'FLORENTIA RUGBY', venue:'Campo sportivo Fibbiana, Via del Campo, Montelupo Fiorentino (FI)'},
+      {date:'2027-02-14', time:'11:00', team:'FIRENZE 1931_2', home:'FIRENZE 1931_2', away:'VALDARNO', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-02-14', time:'11:00', team:'FIRENZE 1931', home:'SESTO', away:'FIRENZE 1931', venue:'Centro Sportivo Querceto, Via della Quercia, Sesto Fiorentino (FI)'},
+      {date:'2027-02-28', time:'11:00', team:'FIRENZE 1931_2', home:'I TITANI', away:'FIRENZE 1931_2', venue:'Stadio Ferracci, Via V. Bellini, Torre del Lago (LU)'},
+      {date:'2027-02-28', time:'12:30', team:'FLORENTIA RUGBY', home:'FLORENTIA RUGBY', away:'HIGHLANDERS FORMIGINE', venue:'Campo Marco Polo, Via San Bartolo a Cintoia, Firenze'},
+      {date:'2027-02-28', time:'12:30', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'PARMA FC 1931', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-03-14', time:'12:30', team:'FIRENZE 1931', home:'LIVORNO', away:'FIRENZE 1931', venue:'Centro Sportivo Maneo, Via delle Margherite, Livorno (LI)'},
+      {date:'2027-03-21', time:'12:30', team:'FLORENTIA RUGBY', home:'FLORENTIA RUGBY', away:'Perugia', venue:'Campo Marco Polo, Via San Bartolo a Cintoia, Firenze'},
+      {date:'2027-03-21', time:'12:30', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'BOLOGNA', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-04-04', time:'11:00', team:'FIRENZE 1931', home:'FIRENZE 1931', away:'GRANDUCATO', venue:'Stadio M. Lodigiani, Viale Paoli, Firenze'},
+      {date:'2027-04-04', time:'12:30', team:'FLORENTIA RUGBY', home:'ASD FAENZA RUGBY', away:'FLORENTIA RUGBY', venue:'Campo Graziola, Piazza Atleti Azzurri d’Italia, Faenza (RA)'},
+      {date:'2027-04-11', time:'12:30', team:'FLORENTIA RUGBY', home:'FLORENTIA RUGBY', away:'MODENA RUGBY 1965', venue:'Campo Marco Polo, Via San Bartolo a Cintoia, Firenze'},
+      {date:'2027-04-11', time:'12:30', team:'FIRENZE 1931', home:'VALORUGBY', away:'FIRENZE 1931', venue:'Centro Sportivo Canalina, Via Antonio Assalini 7, Reggio Emilia (RE)'}
+    ];
+
+    const teamClasses = {
+      'FLORENTIA RUGBY': '',
+      'FIRENZE 1931': 'blue',
+      'FIRENZE 1931_2': 'orange'
+    };
+    const selected = new Set(Object.keys(teamClasses));
+    const selectedLocations = new Set(['Casa', 'Trasferta']);
+    const body = document.getElementById('calendarBody');
+    const resultLine = document.getElementById('calendar-title');
+    const fmtDate = new Intl.DateTimeFormat('it-IT', {day:'2-digit', month:'2-digit', year:'numeric', timeZone:'UTC'});
+    const fmtDay = new Intl.DateTimeFormat('it-IT', {weekday:'long', timeZone:'UTC'});
+    const fmtMonth = new Intl.DateTimeFormat('it-IT', {month:'long', year:'numeric', timeZone:'UTC'});
+
+    function parseDate(iso) { return new Date(iso + 'T12:00:00Z'); }
+    function esc(value) { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+    function render() {
+      const visible = matches.filter(m => {
+        const location = m.home === m.team ? 'Casa' : 'Trasferta';
+        return selected.has(m.team) && selectedLocations.has(location);
+      });
+      body.innerHTML = '';
+      let monthKey = '';
+      if (!visible.length) {
+        body.innerHTML = '<tr><td class="empty" colspan="4">Seleziona almeno una squadra per visualizzare le partite.</td></tr>';
+      } else {
+        visible.forEach(m => {
+          const date = parseDate(m.date);
+          const key = m.date.slice(0, 7);
+          if (key !== monthKey) {
+            monthKey = key;
+            const month = document.createElement('tr');
+            month.className = 'month-row';
+            month.innerHTML = `<td colspan="4">${esc(fmtMonth.format(date))}</td>`;
+            body.appendChild(month);
+          }
+          const isHome = m.home === m.team;
+          const tr = document.createElement('tr');
+          tr.className = 'match-row';
+          tr.innerHTML = `
+            <td><span class="date-main">${fmtDate.format(date)}</span><span class="date-day">${fmtDay.format(date)}</span></td>
+            <td><span class="team-tag ${teamClasses[m.team]}">${esc(m.team)}</span><div class="fixture">${esc(m.home)} - ${esc(m.away)}</div><span class="status ${isHome ? 'home' : ''}">${isHome ? '⌂ Casa' : '↗ Trasferta'}</span></td>
+            <td class="venue ${m.missing ? 'missing' : ''}">${esc(m.venue)}${m.missing ? '' : `<a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(m.venue)}" target="_blank" rel="noopener noreferrer" aria-label="Apri ${esc(m.venue)} in Google Maps">📍 Apri in Google Maps</a>`}</td>
+            <td>${esc(m.time)}</td>`;
+          body.appendChild(tr);
+        });
+      }
+      resultLine.textContent = `${visible.length} ${visible.length === 1 ? 'partita visualizzata' : 'partite visualizzate'}`;
+    }
+
+    document.querySelectorAll('.team-filter').forEach(button => {
+      button.addEventListener('click', () => {
+        const team = button.dataset.team;
+        selected.has(team) ? selected.delete(team) : selected.add(team);
+        button.setAttribute('aria-pressed', selected.has(team));
+        render();
+      });
+    });
+    document.querySelectorAll('.location-filter').forEach(button => {
+      button.addEventListener('click', () => {
+        const location = button.dataset.location;
+        selectedLocations.has(location) ? selectedLocations.delete(location) : selectedLocations.add(location);
+        button.setAttribute('aria-pressed', selectedLocations.has(location));
+        render();
+      });
+    });
+    document.getElementById('showAll').addEventListener('click', () => {
+      Object.keys(teamClasses).forEach(team => selected.add(team));
+      ['Casa', 'Trasferta'].forEach(location => selectedLocations.add(location));
+      document.querySelectorAll('.filter').forEach(b => b.setAttribute('aria-pressed', 'true'));
+      render();
+    });
+    document.getElementById('printPage').addEventListener('click', () => window.print());
+
+    matches.sort((a,b) => (a.date + a.time + a.team).localeCompare(b.date + b.time + b.team));
+    render();
+  </script>
+</body>
+</html>
