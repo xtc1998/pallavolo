@@ -130,19 +130,47 @@
     .dot.orange { background: var(--orange); }
     footer { padding: 0 0 28px; color: var(--muted); font-size: .75rem; text-align: center; }
 
-    @media (max-width: 760px) {
-      .shell { width: min(100% - 20px, 1180px); }
-      .hero { padding-top: 34px; }
-      .summary { grid-template-columns: repeat(2, 1fr); }
-      .toolbar { align-items: flex-start; }
-      .filters, .filter-group { width: 100%; }
+    @media screen and (max-width: 760px) {
+      .shell { width: calc(100% - 24px); }
+      .hero { padding: 28px 0 24px; }
+      h1 { font-size: clamp(1.9rem, 7.5vw, 3.2rem); line-height: 1.08; }
+      .eyebrow { font-size: .7rem; letter-spacing: .08em; }
+      .eyebrow::before { flex-shrink: 0; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .metric { padding: 14px; }
+      .toolbar { align-items: flex-start; padding: 16px 14px; }
+      .filters, .filter-group { width: 100%; min-width: 0; }
       .filter-options { width: 100%; }
-      .filter { flex: 1 1 auto; }
-      .actions { width: 100%; }
-      .action { flex: 1; }
-      .notes { grid-template-columns: 1fr; }
+      .filter { flex: 1 1 auto; min-height: 44px; }
+      .actions { width: 100%; flex-wrap: wrap; }
+      .action { flex: 1 1 110px; min-height: 44px; }
+      .result-line { padding: 12px 14px; }
       .calendar-card { border-radius: 18px; }
-      tbody td { padding: 13px 14px; }
+      .table-wrap { overflow: visible; }
+      table { display: block; min-width: 0; }
+      thead {
+        position: absolute; width: 1px; height: 1px; padding: 0;
+        overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+      }
+      tbody, tbody > tr, tbody td { display: block; }
+      tbody tr.match-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px; padding: 16px 14px;
+      }
+      tbody td { min-width: 0; padding: 0; overflow-wrap: anywhere; }
+      .match-row td:nth-child(1) { grid-column: 1; grid-row: 1; }
+      .match-row td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+      .match-row td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; }
+      .match-row td:nth-child(4) { grid-column: 2; grid-row: 1; text-align: right; white-space: nowrap; }
+      .month-row td { padding: 12px 14px; text-align: left; }
+      .fixture { font-size: 1rem; }
+      .map-link { display: flex; width: fit-content; min-height: 44px; margin-top: 4px; }
+      .empty { padding: 32px 14px; }
+      .notes { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 28px; }
+      .note-card { padding: 18px 16px; }
+      .legend span { overflow-wrap: anywhere; }
+      .dot { flex-shrink: 0; }
+      footer { padding: 0 12px 24px; overflow-wrap: anywhere; }
     }
 
     @media print {

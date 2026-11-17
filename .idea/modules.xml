@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.agent-work/agentbridge-ext-siry0-audit.iml" filepath="$PROJECT_DIR$/.agent-work/agentbridge-ext-siry0-audit.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pallavolo.iml" filepath="$PROJECT_DIR$/.idea/pallavolo.iml" />
     </modules>
   </component>
