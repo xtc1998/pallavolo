@@ -125,7 +125,7 @@
     <noscript><p>Attiva JavaScript per visualizzare e filtrare il calendario.</p></noscript>
     <footer>
         <p>Fonti: <cite>calendario aquilotti big.pdf</cite> (AQUI BIG FI 2), <cite>calendario esordienti.pdf</cite> (ESO FI 2) e immagine del calendario CSI. Casa e trasferta si riferiscono a Firenze per Aquilotti Big ed Esordienti e alla squadra U11 per il CSI.</p>
-        <p>I link a Google Maps cercano le palestre per nome nella zona di Firenze; gli indirizzi non sono verificati.</p>
+        <p>I link a Google Maps cercano le palestre per nome; gli indirizzi non sono verificati. La trasferta CSI a Calcinaia è indicata senza mappa.</p>
         <p>Aquilotti Big: il PDF indica «SAB» accanto al 20/12/2026, che cade di domenica. Il calendario mantiene la data numerica del PDF: da confermare.</p>
     </footer>
 </main>
@@ -142,7 +142,9 @@
         coverciano: ['Palacoverciano', 'Palacoverciano basket Pino Firenze'],
         filarete: ['Palafilarete', 'Palafilarete basket Legnaia Firenze'],
         dlf: ['Palestra DLF', 'Palestra DLF basket Firenze'],
-        sancat: ['Palasancat', 'Palasancat basket Firenze']
+        sancat: ['Palasancat', 'Palasancat basket Firenze'],
+        cerreto: ['Palestra Cerreto', 'Palestra basket Cerreto Guidi', 'Palestra Cerreto, Cerreto Guidi'],
+        calcinaia: ['Calcinaia', null, 'Calcinaia']
     };
     // Columns: date, start time, venue key, opponent, home/away status, optional end time.
     const fixtures = {
@@ -179,12 +181,12 @@
             ['2027-02-06', '16:30', 'scuolaKing', 'Baloncesto', 'away']
         ],
         u11: [
-            ['2026-11-28', '09:30', 'kassel', 'Pino', 'home', '10:30'],
+            ['2026-11-28', '09:30', 'coverciano', 'Pino', 'away', '10:30'],
             ['2026-12-12', '15:15', 'kassel', 'Cerreto', 'home', '16:30'],
             ['2026-12-19', '15:30', 'kassel', 'Calcinaia', 'home', '17:00'],
             ['2027-01-16', '09:00', 'kassel', 'Pino', 'home', '10:15'],
-            ['2027-01-23', '15:30', 'kassel', 'Cerreto', 'home', '16:30'],
-            ['2027-01-31', '09:30', 'kassel', 'Calcinaia', 'home', '11:00']
+            ['2027-01-23', '15:30', 'cerreto', 'Cerreto', 'away', '16:30'],
+            ['2027-01-31', '09:30', 'calcinaia', 'Calcinaia', 'away', '11:00']
         ]
     };
     const matches = Object.entries(fixtures).flatMap(([league, rows]) => {
@@ -274,11 +276,13 @@
             if (match.league === 'aquilotti' && match.date === '2026-12-20') {
                 addText(venueCell, 'span', 'sub', 'Data da confermare');
             }
-            const link = addText(venueCell, 'a', 'map', 'Cerca su Google Maps');
-            link.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.setAttribute('aria-label', `Cerca ${name} su Google Maps`);
+            if (query) {
+                const link = addText(venueCell, 'a', 'map', 'Cerca su Google Maps');
+                link.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.setAttribute('aria-label', `Cerca ${name} su Google Maps`);
+            }
             const timeCell = addCell(row);
             addText(timeCell, 'time', 'game-time', match.time).dateTime = match.time;
             if (match.endTime) {
@@ -305,8 +309,9 @@
                 const end = new Date(`${match.date}T${match.endTime}:00${offset}`);
                 lines.push(`DTEND:${icsStamp(end)}`);
             }
+            const [venueName, , calendarLocation = `${venueName}, zona Firenze`] = venues[match.venue];
             lines.push(`SUMMARY:${icsText(`${match.fixture} (${leagues[match.league]})`)}`,
-                `LOCATION:${icsText(`${venues[match.venue][0]}, zona Firenze`)}`,
+                `LOCATION:${icsText(calendarLocation)}`,
                 `DESCRIPTION:${placeLabel(match)}${match.league === 'aquilotti' && match.date === '2026-12-20' ? ' - Data da confermare' : ''}`,
                 'END:VEVENT');
         }
