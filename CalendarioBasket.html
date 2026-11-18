@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Calendario Basket Firenze 2026/2027</title>
+    <style>
+        :root {
+            --ink: #192b3e;
+            --muted: #4e5e70;
+            --brand: #173b64;
+            --line: #dce4ec;
+            --soft: #edf3fa;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; color: var(--ink); background: #f4f6f8; font: 1rem/1.5 system-ui, sans-serif; }
+        .wrap { width: min(1050px, calc(100% - 28px)); margin: auto; }
+        header { padding: 28px 0; color: white; background: var(--brand); }
+        header p, h1 { margin: 0; }
+        h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); }
+        main { padding: 22px 0 32px; }
+        .toolbar, .filters, .group, .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+        .toolbar { justify-content: space-between; gap: 1rem; }
+        .filters { gap: .75rem 1.25rem; }
+        .group strong { font-size: .83rem; color: var(--muted); }
+        button { min-height: 42px; border: 1px solid #bac9d8; border-radius: 999px; padding: 6px 12px; background: white; color: var(--ink); font: inherit; font-size: .88rem; font-weight: 650; cursor: pointer; }
+        button[aria-pressed="true"] { background: var(--brand); color: white; border-color: var(--brand); }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+        :focus-visible { outline: 3px solid #a34a10; outline-offset: 3px; }
+        #count, footer { color: var(--muted); font-size: .9rem; }
+        .tablebox { background: white; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 3px 14px #18334f18; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 11px 14px; text-align: left; vertical-align: middle; }
+        thead th { background: var(--soft); color: var(--muted); font-size: .82rem; text-transform: uppercase; }
+        tbody td { border-top: 1px solid var(--line); }
+        .month-row td { color: var(--brand); background: var(--soft); font-weight: 750; }
+        .date-main, .game-time, .fixture { font-weight: 750; }
+        .date-main, .game-time { white-space: nowrap; }
+        .sub, .map { display: block; font-size: .85rem; }
+        .sub { color: var(--muted); }
+        .map { width: fit-content; color: #15549a; }
+        .badge { display: inline-block; margin: 0 4px 4px 0; border-radius: 999px; padding: 2px 8px; background: var(--soft); color: var(--brand); font-size: .75rem; font-weight: 750; }
+        .badge.aquilotti { color: #773410; background: #fff0dd; }
+        .badge.home { color: #15533e; background: #e6f4eb; }
+        .empty { text-align: center; padding: 28px 12px; }
+        footer { margin-top: 18px; }
+        footer p { margin: 6px 0; }
+        @media screen and (max-width: 700px) {
+            .group { align-items: flex-start; }
+            .group strong { flex-basis: 100%; }
+            .tablebox { background: transparent; border: 0; box-shadow: none; }
+            table, tbody, .month-row, .month-row td { display: block; }
+            thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+            .month-row td { border: 0; border-radius: 8px; margin: 8px 0; }
+            .match-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "date time" "fixture fixture" "venue venue"; padding: 10px 12px; gap: 8px; border: 1px solid var(--line); border-radius: 10px; background: white; margin-bottom: 8px; }
+            .match-row td { padding: 0; border: 0; }
+            .match-row td:nth-child(1) { grid-area: date; }
+            .match-row td:nth-child(2) { grid-area: fixture; }
+            .match-row td:nth-child(3) { grid-area: venue; }
+            .match-row td:nth-child(4) { grid-area: time; }
+        }
+        @media print {
+            body { background: white; color: black; font-size: 10pt; }
+            header { padding: 0; background: white; color: black; }
+            .wrap { width: 100%; }
+            .toolbar, .map { display: none; }
+            .tablebox { border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+            tr { break-inside: avoid; }
+            .month-row { break-after: avoid; }
+            th, td { padding: 5px 8px; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="wrap">
+        <h1>Calendario Basket Firenze</h1>
+        <p>Aquilotti Big e Esordienti · Stagione 2026/2027</p>
+    </div>
+</header>
+<main class="wrap">
+    <div class="toolbar">
+        <div class="filters">
+            <div class="group" role="group" aria-label="Campionato">
+                <strong>Campionato</strong>
+                <button type="button" data-filter="league" data-value="all" aria-pressed="true">Tutti</button>
+                <button type="button" data-filter="league" data-value="aquilotti" aria-pressed="false">Aquilotti Big</button>
+                <button type="button" data-filter="league" data-value="esordienti" aria-pressed="false">Esordienti</button>
+            </div>
+            <div class="group" role="group" aria-label="Casa o trasferta">
+                <strong>Luogo</strong>
+                <button type="button" data-filter="place" data-value="all" aria-pressed="true">Tutte</button>
+                <button type="button" data-filter="place" data-value="home" aria-pressed="false">Casa</button>
+                <button type="button" data-filter="place" data-value="away" aria-pressed="false">Trasferta</button>
+            </div>
+            <div class="group" role="group" aria-label="Periodo">
+                <strong>Periodo</strong>
+                <button type="button" data-filter="period" data-value="all" aria-pressed="true">Tutte</button>
+                <button type="button" data-filter="period" data-value="upcoming" aria-pressed="false">Prossime</button>
+                <button type="button" data-filter="period" data-value="past" aria-pressed="false">Passate</button>
+            </div>
+        </div>
+        <div class="actions">
+            <button type="button" id="reset">Azzera filtri</button>
+            <button type="button" id="print">Stampa / PDF</button>
+            <button type="button" id="download">Scarica .ics</button>
+        </div>
+    </div>
+    <p id="count" role="status"></p>
+    <div class="tablebox">
+        <table role="table" aria-label="Partite di basket Firenze">
+            <thead role="rowgroup">
+            <tr role="row">
+                <th scope="col" role="columnheader">Data</th>
+                <th scope="col" role="columnheader">Partita e campionato</th>
+                <th scope="col" role="columnheader">Palestra</th>
+                <th scope="col" role="columnheader">Orario</th>
+            </tr>
+            </thead>
+            <tbody id="matches" role="rowgroup"></tbody>
+        </table>
+    </div>
+    <noscript><p>Attiva JavaScript per visualizzare e filtrare il calendario.</p></noscript>
+    <footer>
+        <p>Fonti: <cite>calendario aquilotti big.pdf</cite> (AQUI BIG FI 2) e <cite>calendario esordienti.pdf</cite> (ESO FI 2). Casa e trasferta si riferiscono alla squadra Firenze.</p>
+        <p>I link a Google Maps cercano le palestre per nome nella zona di Firenze; gli indirizzi non sono verificati.</p>
+        <p>Aquilotti Big: il PDF indica «SAB» accanto al 20/12/2026, che cade di domenica. Il calendario mantiene la data numerica del PDF: da confermare.</p>
+    </footer>
+</main>
+<script>
+    const leagues = { aquilotti: 'Aquilotti Big', esordienti: 'Esordienti' };
+    const venues = {
+        kassel: ['Kassel', 'Palestra scuola Kassel Firenze'],
+        king: ['Palestra King', 'Palestra scuola Martin Luther King Baloncesto Firenze'],
+        scuolaKing: ['Scuola King', 'Palestra scuola Martin Luther King Baloncesto Firenze'],
+        montalve: ['Palazzetto Montalve', 'Palazzetto Montalve CUS Firenze'],
+        valenti: ['Palazzetto Valenti', 'Palazzetto Valenti Laurenziana basket Firenze'],
+        vamba: ['Palestra Vamba', 'Palestra scuola Vamba Freccia Azzurra Firenze'],
+        scuolaVamba: ['Scuola Vamba', 'Palestra scuola Vamba Freccia Azzurra Firenze'],
+        coverciano: ['Palacoverciano', 'Palacoverciano basket Pino Firenze'],
+        filarete: ['Palafilarete', 'Palafilarete basket Legnaia Firenze'],
+        dlf: ['Palestra DLF', 'Palestra DLF basket Firenze'],
+        sancat: ['Palasancat', 'Palasancat basket Firenze']
+    };
+    // Columns: date, time, venue key, opponent and Firenze's home/away status.
+    const fixtures = {
+        aquilotti: [
+            ['2026-11-05', '18:15', 'kassel', 'Laurenziana', 'home'],
+            ['2026-11-08', '09:15', 'kassel', 'Freccia Azz', 'home'],
+            ['2026-11-12', '18:00', 'king', 'Baloncesto', 'away'],
+            ['2026-11-21', '09:30', 'kassel', 'Pino Bianca', 'home'],
+            ['2026-11-26', '18:10', 'kassel', 'Legnaia', 'home'],
+            ['2026-11-29', '09:00', 'montalve', 'CUS', 'away'],
+            ['2026-12-12', '11:00', 'kassel', 'DLF', 'home'],
+            ['2026-12-20', '09:15', 'valenti', 'Laurenziana', 'away'],
+            ['2027-01-09', '09:30', 'vamba', 'Freccia Azz', 'away'],
+            ['2027-01-18', '19:10', 'kassel', 'Baloncesto', 'home'],
+            ['2027-01-23', '10:45', 'coverciano', 'Pino Bianca', 'away'],
+            ['2027-01-31', '15:30', 'filarete', 'Legnaia', 'away'],
+            ['2027-02-08', '19:10', 'kassel', 'CUS', 'home'],
+            ['2027-02-14', '15:00', 'dlf', 'DLF', 'away']
+        ],
+        esordienti: [
+            ['2026-10-31', '11:00', 'kassel', 'Legnaia A', 'home'],
+            ['2026-11-02', '19:10', 'kassel', 'Freccia Azz', 'home'],
+            ['2026-11-07', '11:00', 'valenti', 'Laurenziana', 'away'],
+            ['2026-11-14', '11:00', 'kassel', 'Pino Bianca', 'home'],
+            ['2026-11-21', '11:30', 'kassel', 'Sancat', 'home'],
+            ['2026-11-28', '11:15', 'dlf', 'DLF', 'away'],
+            ['2026-12-05', '11:30', 'kassel', 'Baloncesto', 'home'],
+            ['2026-12-13', '09:30', 'scuolaVamba', 'Freccia Azz', 'away'],
+            ['2026-12-19', '11:00', 'filarete', 'Legnaia A', 'away'],
+            ['2027-01-11', '19:15', 'kassel', 'Laurenziana', 'home'],
+            ['2027-01-16', '12:00', 'coverciano', 'Pino Bianca', 'away'],
+            ['2027-01-23', '15:00', 'sancat', 'Sancat', 'away'],
+            ['2027-01-30', '11:30', 'kassel', 'DLF', 'home'],
+            ['2027-02-06', '16:30', 'scuolaKing', 'Baloncesto', 'away']
+        ]
+    };
+    const matches = Object.entries(fixtures).flatMap(([league, rows]) =>
+        rows.map(([date, time, venue, opponent, place]) => ({
+            date, time, venue, league, place,
+            fixture: place === 'home' ? `Firenze – ${opponent}` : `${opponent} – Firenze`
+        }))
+    ).sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+    const defaults = { league: 'all', place: 'all', period: 'all' };
+    const filters = { ...defaults };
+    const buttons = document.querySelectorAll('[data-filter]');
+    const tableBody = document.getElementById('matches');
+    const count = document.getElementById('count');
+    const download = document.getElementById('download');
+    const dayFormat = new Intl.DateTimeFormat('it-IT', { weekday: 'long', timeZone: 'UTC' });
+    const dateFormat = new Intl.DateTimeFormat('it-IT', { dateStyle: 'short', timeZone: 'UTC' });
+    const monthFormat = new Intl.DateTimeFormat('it-IT', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    const romeDate = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const localDate = iso => new Date(`${iso}T12:00:00Z`);
+    const placeLabel = match => match.place === 'home' ? 'Casa' : 'Trasferta';
+    let visibleMatches = [];
+
+    function getVisibleMatches() {
+        const parts = Object.fromEntries(romeDate.formatToParts(new Date()).map(({ type, value }) => [type, value]));
+        const today = `${parts.year}-${parts.month}-${parts.day}`;
+        return matches.filter(match =>
+            (filters.league === 'all' || match.league === filters.league) &&
+            (filters.place === 'all' || match.place === filters.place) &&
+            (filters.period === 'all' || (filters.period === 'upcoming' ? match.date >= today : match.date < today)));
+    }
+
+    function addRow(className) {
+        const row = tableBody.insertRow();
+        row.className = className;
+        row.setAttribute('role', 'row');
+        return row;
+    }
+
+    function addCell(row) {
+        const cell = row.insertCell();
+        cell.setAttribute('role', 'cell');
+        return cell;
+    }
+
+    function addText(parent, tag, className, text) {
+        const node = document.createElement(tag);
+        node.className = className;
+        node.textContent = text;
+        parent.append(node);
+        return node;
+    }
+
+    function render() {
+        buttons.forEach(button => button.setAttribute('aria-pressed', filters[button.dataset.filter] === button.dataset.value));
+        visibleMatches = getVisibleMatches();
+        tableBody.replaceChildren();
+        count.textContent = `${visibleMatches.length} su ${matches.length} partite`;
+        download.disabled = visibleMatches.length === 0;
+        if (!visibleMatches.length) {
+            const cell = addCell(addRow('empty'));
+            cell.colSpan = 4;
+            cell.textContent = 'Nessuna partita corrisponde ai filtri selezionati.';
+            return;
+        }
+        let currentMonth = '';
+        for (const match of visibleMatches) {
+            const date = localDate(match.date);
+            const month = match.date.slice(0, 7);
+            if (month !== currentMonth) {
+                currentMonth = month;
+                const heading = addCell(addRow('month-row'));
+                heading.colSpan = 4;
+                heading.textContent = monthFormat.format(date);
+            }
+            const row = addRow('match-row');
+            const dateCell = addCell(row);
+            addText(dateCell, 'time', 'date-main', dateFormat.format(date)).dateTime = match.date;
+            addText(dateCell, 'span', 'sub', dayFormat.format(date));
+            const matchCell = addCell(row);
+            addText(matchCell, 'div', 'fixture', match.fixture);
+            addText(matchCell, 'span', `badge ${match.league}`, leagues[match.league]);
+            addText(matchCell, 'span', `badge ${match.place}`, placeLabel(match));
+            const venueCell = addCell(row);
+            const [name, query] = venues[match.venue];
+            addText(venueCell, 'strong', '', name);
+            if (match.league === 'aquilotti' && match.date === '2026-12-20') {
+                addText(venueCell, 'span', 'sub', 'Data da confermare');
+            }
+            const link = addText(venueCell, 'a', 'map', 'Cerca su Google Maps');
+            link.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.setAttribute('aria-label', `Cerca ${name} su Google Maps`);
+            addText(addCell(row), 'time', 'game-time', match.time).dateTime = match.time;
+        }
+    }
+
+    const icsText = value => value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([;,])/g, '\\$1');
+    const icsStamp = date => date.toISOString().replace(/[-:]|\.\d{3}/g, '');
+    const romeOffset = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', timeZoneName: 'longOffset' });
+
+    function downloadCalendar() {
+        const stamp = icsStamp(new Date());
+        const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Calendario Basket Firenze//IT', 'CALSCALE:GREGORIAN'];
+        for (const match of visibleMatches) {
+            // All games start after the overnight daylight-saving transition window.
+            const offset = romeOffset.formatToParts(localDate(match.date)).find(part => part.type === 'timeZoneName').value.slice(3);
+            const start = new Date(`${match.date}T${match.time}:00${offset}`);
+            lines.push('BEGIN:VEVENT', `UID:${match.league}-${match.date}@calendario-basket`, `DTSTAMP:${stamp}`,
+                `DTSTART:${icsStamp(start)}`, `SUMMARY:${icsText(`${match.fixture} (${leagues[match.league]})`)}`,
+                `LOCATION:${icsText(`${venues[match.venue][0]}, zona Firenze`)}`,
+                `DESCRIPTION:${placeLabel(match)}${match.league === 'aquilotti' && match.date === '2026-12-20' ? ' - Data da confermare' : ''}`,
+                'END:VEVENT');
+        }
+        lines.push('END:VCALENDAR', '');
+        const url = URL.createObjectURL(new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'CalendarioBasket.ics';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    buttons.forEach(button => button.addEventListener('click', () => {
+        filters[button.dataset.filter] = button.dataset.value;
+        render();
+    }));
+    document.getElementById('reset').addEventListener('click', () => {
+        Object.assign(filters, defaults);
+        render();
+    });
+    document.getElementById('print').addEventListener('click', () => window.print());
+    download.addEventListener('click', downloadCalendar);
+    render();
+</script>
+</body>
+</html>
