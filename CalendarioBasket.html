@@ -76,7 +76,7 @@
 <header>
     <div class="wrap">
         <h1>Calendario Basket Firenze</h1>
-        <p>Aquilotti Big e Esordienti · Stagione 2026/2027</p>
+        <p>Aquilotti Big, Esordienti e CSI · Stagione 2026/2027</p>
     </div>
 </header>
 <main class="wrap">
@@ -87,6 +87,7 @@
                 <button type="button" data-filter="league" data-value="all" aria-pressed="true">Tutti</button>
                 <button type="button" data-filter="league" data-value="aquilotti" aria-pressed="false">Aquilotti Big</button>
                 <button type="button" data-filter="league" data-value="esordienti" aria-pressed="false">Esordienti</button>
+                <button type="button" data-filter="league" data-value="u11" aria-pressed="false">CSI</button>
             </div>
             <div class="group" role="group" aria-label="Casa o trasferta">
                 <strong>Luogo</strong>
@@ -123,13 +124,13 @@
     </div>
     <noscript><p>Attiva JavaScript per visualizzare e filtrare il calendario.</p></noscript>
     <footer>
-        <p>Fonti: <cite>calendario aquilotti big.pdf</cite> (AQUI BIG FI 2) e <cite>calendario esordienti.pdf</cite> (ESO FI 2). Casa e trasferta si riferiscono alla squadra Firenze.</p>
+        <p>Fonti: <cite>calendario aquilotti big.pdf</cite> (AQUI BIG FI 2), <cite>calendario esordienti.pdf</cite> (ESO FI 2) e immagine del calendario CSI. Casa e trasferta si riferiscono a Firenze per Aquilotti Big ed Esordienti e alla squadra U11 per il CSI.</p>
         <p>I link a Google Maps cercano le palestre per nome nella zona di Firenze; gli indirizzi non sono verificati.</p>
         <p>Aquilotti Big: il PDF indica «SAB» accanto al 20/12/2026, che cade di domenica. Il calendario mantiene la data numerica del PDF: da confermare.</p>
     </footer>
 </main>
 <script>
-    const leagues = { aquilotti: 'Aquilotti Big', esordienti: 'Esordienti' };
+    const leagues = { aquilotti: 'Aquilotti Big', esordienti: 'Esordienti', u11: 'CSI' };
     const venues = {
         kassel: ['Kassel', 'Palestra scuola Kassel Firenze'],
         king: ['Palestra King', 'Palestra scuola Martin Luther King Baloncesto Firenze'],
@@ -143,7 +144,7 @@
         dlf: ['Palestra DLF', 'Palestra DLF basket Firenze'],
         sancat: ['Palasancat', 'Palasancat basket Firenze']
     };
-    // Columns: date, time, venue key, opponent and Firenze's home/away status.
+    // Columns: date, start time, venue key, opponent, home/away status, optional end time.
     const fixtures = {
         aquilotti: [
             ['2026-11-05', '18:15', 'kassel', 'Laurenziana', 'home'],
@@ -176,14 +177,23 @@
             ['2027-01-23', '15:00', 'sancat', 'Sancat', 'away'],
             ['2027-01-30', '11:30', 'kassel', 'DLF', 'home'],
             ['2027-02-06', '16:30', 'scuolaKing', 'Baloncesto', 'away']
+        ],
+        u11: [
+            ['2026-11-28', '09:30', 'kassel', 'Pino', 'home', '10:30'],
+            ['2026-12-12', '15:15', 'kassel', 'Cerreto', 'home', '16:30'],
+            ['2026-12-19', '15:30', 'kassel', 'Calcinaia', 'home', '17:00'],
+            ['2027-01-16', '09:00', 'kassel', 'Pino', 'home', '10:15'],
+            ['2027-01-23', '15:30', 'kassel', 'Cerreto', 'home', '16:30'],
+            ['2027-01-31', '09:30', 'kassel', 'Calcinaia', 'home', '11:00']
         ]
     };
-    const matches = Object.entries(fixtures).flatMap(([league, rows]) =>
-        rows.map(([date, time, venue, opponent, place]) => ({
-            date, time, venue, league, place,
-            fixture: place === 'home' ? `Firenze – ${opponent}` : `${opponent} – Firenze`
-        }))
-    ).sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+    const matches = Object.entries(fixtures).flatMap(([league, rows]) => {
+        const team = league === 'u11' ? 'U11' : 'Firenze';
+        return rows.map(([date, time, venue, opponent, place, endTime]) => ({
+            date, time, endTime, venue, league, place,
+            fixture: place === 'home' ? `${team} – ${opponent}` : `${opponent} – ${team}`
+        }));
+    }).sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
     const defaults = { league: 'all', place: 'all', period: 'all' };
     const filters = { ...defaults };
     const buttons = document.querySelectorAll('[data-filter]');
@@ -269,7 +279,12 @@
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
             link.setAttribute('aria-label', `Cerca ${name} su Google Maps`);
-            addText(addCell(row), 'time', 'game-time', match.time).dateTime = match.time;
+            const timeCell = addCell(row);
+            addText(timeCell, 'time', 'game-time', match.time).dateTime = match.time;
+            if (match.endTime) {
+                timeCell.append('–');
+                addText(timeCell, 'time', 'game-time', match.endTime).dateTime = match.endTime;
+            }
         }
     }
 
@@ -285,7 +300,12 @@
             const offset = romeOffset.formatToParts(localDate(match.date)).find(part => part.type === 'timeZoneName').value.slice(3);
             const start = new Date(`${match.date}T${match.time}:00${offset}`);
             lines.push('BEGIN:VEVENT', `UID:${match.league}-${match.date}@calendario-basket`, `DTSTAMP:${stamp}`,
-                `DTSTART:${icsStamp(start)}`, `SUMMARY:${icsText(`${match.fixture} (${leagues[match.league]})`)}`,
+                `DTSTART:${icsStamp(start)}`);
+            if (match.endTime) {
+                const end = new Date(`${match.date}T${match.endTime}:00${offset}`);
+                lines.push(`DTEND:${icsStamp(end)}`);
+            }
+            lines.push(`SUMMARY:${icsText(`${match.fixture} (${leagues[match.league]})`)}`,
                 `LOCATION:${icsText(`${venues[match.venue][0]}, zona Firenze`)}`,
                 `DESCRIPTION:${placeLabel(match)}${match.league === 'aquilotti' && match.date === '2026-12-20' ? ' - Data da confermare' : ''}`,
                 'END:VEVENT');

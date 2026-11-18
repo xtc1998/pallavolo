@@ -7,7 +7,7 @@
 
 ## Basket
 
-[Calendario Basket Firenze 2026/2027](CalendarioBasket.html): partite di Aquilotti Big ed Esordienti, con filtri per campionato e casa/trasferta.
+[Calendario Basket Firenze 2026/2027](CalendarioBasket.html): partite dei campionati Aquilotti Big, Esordienti e CSI, con filtri per campionato e casa/trasferta.
 
 ## Pallavolo UISP Firenze
 
